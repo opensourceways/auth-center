@@ -14,6 +14,7 @@ package com.authcenter.init;
 import com.authcenter.common.utils.CommonUtil;
 import com.authcenter.common.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +24,53 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class InitController implements ApplicationRunner {
+    /**
+     * 服务https证书路径.
+     */
+    @Value("${server.ssl.key-store:}")
+    private String serviceSsl;
+
+    /**
+     * 数据库证书路径.
+     */
+    @Value("${spring.datasource.casbin.hikari.data-source-properties.trustCertificateKeyStoreUrl:}")
+    private String sqlSsl;
+
+    private void deleteServiceSsl() {
+        if (StringUtils.isBlank(serviceSsl)) {
+            LogUtil.createLogs("system", "delete file", "application init",
+                    "system delete file service ssl", "localhost", "failed,file not found");
+            return;
+        }
+        if (CommonUtil.deleteFile(serviceSsl)) {
+            LogUtil.createLogs("system", "delete file", "application init",
+                    "system delete file service ssl", "localhost", "success");
+        } else {
+            LogUtil.createLogs("system", "delete file", "application init",
+                    "system delete file service ssl", "localhost", "failed");
+        }
+    }
+
+    private void deleteSqlSsl() {
+        if (StringUtils.isBlank(sqlSsl)) {
+            LogUtil.createLogs("system", "delete file", "application init",
+                    "system delete file sql ssl", "localhost", "failed,file not found");
+            return;
+        }
+        String[] splits = sqlSsl.split(":");
+        String filePath = sqlSsl;
+        if (splits.length == 2) {
+            filePath = splits[1];
+        }
+        if (CommonUtil.deleteFile(filePath)) {
+            LogUtil.createLogs("system", "delete file", "application init",
+                    "system delete file sql ssl", "localhost", "success");
+        } else {
+            LogUtil.createLogs("system", "delete file", "application init",
+                    "system delete file sql ssl", "localhost", "failed");
+        }
+    }
+
     private void deleteApplicationConfig() {
         String applicationPath = System.getenv("APPLICATION_PATH");
         if (StringUtils.isBlank(applicationPath)) {
@@ -48,5 +96,7 @@ public class InitController implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         deleteApplicationConfig();
+        deleteServiceSsl();
+        deleteSqlSsl();
     }
 }

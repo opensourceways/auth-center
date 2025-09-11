@@ -13,7 +13,12 @@ package com.authcenter.common.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.DrbgParameters;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -27,6 +32,8 @@ public final class CommonUtil {
      * 随机字符串生成源.
      */
     private static final String DATA_FOR_RANDOM_STRING = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+    private static final int DOWNLOAD_FILE_MAX_SIZE = 1024 * 1024 * 5;
 
     /**
      * 删除文件.
@@ -72,5 +79,35 @@ public final class CommonUtil {
             sb.append(rndChar);
         }
         return sb.toString();
+    }
+
+    /**
+     * 下载文件.
+     *
+     * @param fileUrl 文件url
+     * @return 文件内容
+     * @throws IOException
+     */
+    public static String downloadFile(String fileUrl) throws IOException {
+        URL url = new URL(fileUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        // 检查文件大小
+        long fileSize = connection.getContentLengthLong();
+        if (fileSize > DOWNLOAD_FILE_MAX_SIZE) {
+            throw new IOException("File size too large: " + fileSize + " bytes. Maximum allowed: " +
+                    DOWNLOAD_FILE_MAX_SIZE + " bytes.");
+        }
+
+        // 读取文件内容
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+        }
+
+        connection.disconnect();
+        return content.toString();
     }
 }
