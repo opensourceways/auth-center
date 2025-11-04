@@ -11,8 +11,10 @@
 
 package com.authcenter;
 
+import com.authcenter.cronjob.CronjobTaskInit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -26,6 +28,8 @@ public class AuthCenterApplication {
      * @param args Command-line arguments
      */
     public static void main(String[] args) {
-        SpringApplication.run(AuthCenterApplication.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(AuthCenterApplication.class, args);
+        CronjobTaskInit task = (CronjobTaskInit) context.getBean(CronjobTaskInit.class);
+        task.execArgs();
     }
 }

@@ -15,10 +15,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.casbin.adapter.JDBCAdapter;
 import org.casbin.jcasbin.main.Enforcer;
+import org.casbin.jcasbin.model.Model;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.FileCopyUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,7 +48,14 @@ public class CasbinConfig {
         Map<String, Enforcer> enforcers = new HashMap<>();
         for (Map.Entry<String, EnforcerProperties> entry : instances.entrySet()) {
             JDBCAdapter adapter = adapterFactory.createAdapter(entry.getValue().getServiceName());
-            Enforcer enforcer = new Enforcer(entry.getValue().getPolicyPath(), adapter);
+            ClassPathResource resource = new ClassPathResource(entry.getValue().getPolicyPath());
+            String modelConfig = new String(
+                    FileCopyUtils.copyToByteArray(resource.getInputStream()),
+                    StandardCharsets.UTF_8
+            );
+            Model model = new Model();
+            model.loadModelFromText(modelConfig);
+            Enforcer enforcer = new Enforcer(model, adapter);
             enforcer.loadPolicy();
             enforcer.enableAutoSave(true);
             enforcers.put(entry.getKey(), enforcer);
