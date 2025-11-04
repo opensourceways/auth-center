@@ -9,26 +9,8 @@
  Create: 2025
 */
 
-package com.authcenter.application.casbin.vo;
+package com.authcenter.cronjob;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Setter
-@Getter
-public class PermissionRoleDetailsVO {
-    /**
-     * 角色.
-     */
-    private String role;
-
-    /**
-     * 服务.
-     */
-    private String service;
-
-    /**
-     * 操作.
-     */
-    private PermissionActionVO actions;
+public interface CronjobServiceInter {
+    void start();
 }

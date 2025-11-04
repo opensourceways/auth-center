@@ -14,21 +14,18 @@ package com.authcenter.application.casbin.vo;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Setter
 @Getter
-public class PermissionRoleDetailsVO {
+public class ServiceRoleVO {
     /**
      * 角色.
      */
-    private String role;
+    private Set<String> roles;
 
     /**
      * 服务.
      */
     private String service;
-
-    /**
-     * 操作.
-     */
-    private PermissionActionVO actions;
 }

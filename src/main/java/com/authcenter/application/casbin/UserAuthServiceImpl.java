@@ -15,7 +15,12 @@ import com.authcenter.application.casbin.vo.PermissionRoleDetailsVO;
 import com.authcenter.application.casbin.vo.PermissionActionVO;
 import com.authcenter.application.casbin.vo.PermissionRoleOnlyDomVO;
 import com.authcenter.application.casbin.vo.PermissionRoleOnlyVO;
+import com.authcenter.application.casbin.vo.ServiceRoleVO;
 import com.authcenter.common.config.CasbinConfig;
+import com.authcenter.common.config.CommunityServiceConfig;
+import com.authcenter.common.config.CommunityServiceProperties;
+import com.authcenter.common.config.EnforcerProperties;
+import com.authcenter.common.constant.CommonConstant;
 import com.authcenter.common.constant.MessageCodeConstant;
 import com.authcenter.common.utils.ResultUtil;
 import org.casbin.jcasbin.main.Enforcer;
@@ -23,9 +28,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,6 +49,9 @@ public class UserAuthServiceImpl implements UserAuthService {
      */
     @Autowired
     private CasbinConfig casbinConfig;
+
+    @Autowired
+    private CommunityServiceConfig communityServiceConfig;
 
     /**
      * 是否有权限.
@@ -239,5 +249,43 @@ public class UserAuthServiceImpl implements UserAuthService {
             permissionRoleOnlyDomVOS.add(permissionRoleOnlyDomVO);
         }
         return ResultUtil.result(HttpStatus.OK, "success", permissionRoleOnlyDomVOS);
+    }
+
+    public ResponseEntity getRolesByCommunity(String community, String sub) {
+        List<ServiceRoleVO> serviceRoleVOS = new ArrayList<>();
+        CommunityServiceProperties serviceProperties = communityServiceConfig.getService(community);
+        if (serviceProperties == null || CollectionUtils.isEmpty(serviceProperties.getServices())) {
+            return ResultUtil.result(HttpStatus.OK, "success", serviceRoleVOS);
+        }
+
+        for (String service : serviceProperties.getServices()) {
+            EnforcerProperties enforcerProperties = casbinConfig.getServiceInfo().get(service);
+            ServiceRoleVO serviceRoleVO = new ServiceRoleVO();
+            serviceRoleVO.setService(service);
+            serviceRoleVO.setRoles(new HashSet<>());
+            Enforcer enforcerService = casbinServiceContext.getService(service);
+            // 获取角色
+            List<List<String>> permissionsForUser = enforcerService.getPermissionsForUser(sub);
+            for (List<String> perf : permissionsForUser) {
+                switch (enforcerProperties.getAuthModelType()) {
+                    case CommonConstant.AUTH_MODEL_TYPE_ROLE_ACTION:
+                        serviceRoleVO.getRoles().add(perf.get(2));
+                        break;
+                    case CommonConstant.AUTH_MODEL_TYPE_ROLE_ONLY:
+                        serviceRoleVO.getRoles().add(perf.get(2));
+                        break;
+                    case CommonConstant.AUTH_MODEL_TYPE_ROLE_ONLY_DOM:
+                        serviceRoleVO.getRoles().add(perf.get(3));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (serviceRoleVO.getRoles().size() > 0) {
+                serviceRoleVOS.add(serviceRoleVO);
+            }
+        }
+
+        return ResultUtil.result(HttpStatus.OK, "success", serviceRoleVOS);
     }
 }

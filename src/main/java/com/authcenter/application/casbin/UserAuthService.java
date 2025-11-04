@@ -94,4 +94,13 @@ public interface UserAuthService {
      * @return 角色详情
      */
     ResponseEntity getRoleOnlyDomDetail(String service, String sub);
+
+    /**
+     * 按社区获取角色信息.
+     *
+     * @param community 社区
+     * @param sub 用户
+     * @return 角色信息
+     */
+    ResponseEntity getRolesByCommunity(String community, String sub);
 }

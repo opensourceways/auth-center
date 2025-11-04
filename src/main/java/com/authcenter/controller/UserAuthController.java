@@ -11,7 +11,9 @@
 
 package com.authcenter.controller;
 
+import com.authcenter.aop.AuthingUserToken;
 import com.authcenter.application.casbin.UserAuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,49 +27,10 @@ public class UserAuthController {
     @Autowired
     private UserAuthService userAuthService;
 
-    @RequestMapping(value = "/check/roleOnly", method = RequestMethod.GET)
-    public ResponseEntity checkRoleOnly(@RequestParam("service") String service, @RequestParam("sub") String sub,
-                                          @RequestParam("obj") String obj, @RequestParam("role") String role) {
-        return userAuthService.hasPermission(service, sub, obj, role);
-    }
-
-    @RequestMapping(value = "/check/roleOnlyDom", method = RequestMethod.GET)
-    public ResponseEntity checkRoleOnlyDom(@RequestParam("service") String service, @RequestParam("sub") String sub,
-                                        @RequestParam("obj") String obj, @RequestParam("role") String role,
-                                        @RequestParam("domain") String domain) {
-        return userAuthService.hasPermissionDom(service, sub, obj, role, domain);
-    }
-
-    @RequestMapping(value = "/check/roleAction", method = RequestMethod.GET)
-    public ResponseEntity checkRoleAction(@RequestParam("service") String service, @RequestParam("sub") String sub,
-                                          @RequestParam("obj") String obj, @RequestParam("action") String action) {
-        return userAuthService.hasPermissionAction(service, sub, obj, action);
-    }
-
-    @RequestMapping(value = "/get/detail/roleActions", method = RequestMethod.GET)
-    public ResponseEntity getRoleActions(@RequestParam("service") String service, @RequestParam("sub") String sub) {
-        return userAuthService.getPermissions(service, sub);
-    }
-
-    @RequestMapping(value = "/get/detail/roleOnly", method = RequestMethod.GET)
-    public ResponseEntity getRoleOnly(@RequestParam("service") String service, @RequestParam("sub") String sub) {
-        return userAuthService.getRoleOnlyDetail(service, sub);
-    }
-
-    @RequestMapping(value = "/get/permission/roleOnly", method = RequestMethod.GET)
-    public ResponseEntity getRoleOnly(@RequestParam("service") String service, @RequestParam("sub") String sub,
-                                        @RequestParam("obj") String obj) {
-        return userAuthService.getRoleOnlyPermissions(service, sub, obj);
-    }
-
-    @RequestMapping(value = "/get/detail/roleOnlyDom", method = RequestMethod.GET)
-    public ResponseEntity getRoleOnlyDom(@RequestParam("service") String service, @RequestParam("sub") String sub) {
-        return userAuthService.getRoleOnlyDomDetail(service, sub);
-    }
-
-    @RequestMapping(value = "/get/permission/roleOnlyDom", method = RequestMethod.GET)
-    public ResponseEntity getRoleOnlyDom(@RequestParam("service") String service, @RequestParam("sub") String sub,
-                                      @RequestParam("domain") String domain) {
-        return userAuthService.getRoleOnlyDomPermissions(service, sub, domain);
+    @AuthingUserToken
+    @RequestMapping(value = "/roles", method = RequestMethod.GET)
+    public ResponseEntity getRoleOnly(HttpServletRequest servletRequest,
+                                      @RequestParam("community") String community) {
+        return userAuthService.getRolesByCommunity(community, servletRequest.getAttribute("username").toString());
     }
 }
