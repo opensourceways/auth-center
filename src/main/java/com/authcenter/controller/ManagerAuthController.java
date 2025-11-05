@@ -9,26 +9,12 @@
  Create: 2025
 */
 
-package com.authcenter.application.casbin.vo;
+package com.authcenter.controller;
 
-import lombok.Getter;
-import lombok.Setter;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Setter
-@Getter
-public class PermissionRoleDetailsVO {
-    /**
-     * 角色.
-     */
-    private String role;
-
-    /**
-     * 服务.
-     */
-    private String service;
-
-    /**
-     * 操作.
-     */
-    private PermissionActionVO actions;
+@RequestMapping(value = "/auth-manager")
+@RestController
+public class ManagerAuthController {
 }
