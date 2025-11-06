@@ -12,9 +12,7 @@
 package com.authcenter.controller;
 
 import com.authcenter.aop.AuthingApiToken;
-import com.authcenter.aop.AuthingUserToken;
 import com.authcenter.application.casbin.UserAuthService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -85,5 +83,12 @@ public class UserAuthApiController {
     public ResponseEntity getRoleOnlyDom(@RequestParam("service") String service, @RequestParam("sub") String sub,
                                       @RequestParam("domain") String domain) {
         return userAuthService.getRoleOnlyDomPermissions(service, sub, domain);
+    }
+
+    @AuthingApiToken
+    @RequestMapping(value = "/roles", method = RequestMethod.GET)
+    public ResponseEntity roles(@RequestParam("sub") String sub,
+                                      @RequestParam("community") String community) {
+        return userAuthService.getRolesByCommunity(community, sub);
     }
 }
