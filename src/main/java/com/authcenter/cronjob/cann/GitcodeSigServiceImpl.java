@@ -81,6 +81,7 @@ public class GitcodeSigServiceImpl implements CronjobServiceInter {
         }
         for (int i =0; i < sigList.length(); i++) {
             String sigName = sigList.getJSONObject(i).getString("name");
+            sigName = "sig-" + sigName;
             if (sigList.getJSONObject(i).has("committers")) {
                 JSONArray committers = sigList.getJSONObject(i).getJSONArray("committers");
                 parseCommitters(sigName, committers);

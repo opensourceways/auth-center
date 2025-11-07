@@ -68,6 +68,16 @@ public interface UserAuthService {
     ResponseEntity getRoleOnlyPermissions(String service, String sub, String obj);
 
     /**
+     * 根据角色查询所有用户.
+     *
+     * @param service 服务
+     * @param obj 资源
+     * @param role 角色
+     * @return 用户列表
+     */
+    ResponseEntity getRoleOnlyUsers(String service, String obj, String role);
+
+    /**
      * 获取带域的角色权限信息.
      *
      * @param service 服务ID

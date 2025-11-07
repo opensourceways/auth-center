@@ -163,14 +163,41 @@ public class UserAuthServiceImpl implements UserAuthService {
      */
     @Override
     public ResponseEntity getRoleOnlyPermissions(String service, String sub, String obj) {
-        List<PermissionActionVO> permissionActionVOS = new ArrayList<>();
+        Set<String> permissionsForUser = new HashSet<>();
         if (!casbinConfig.getServiceInfo().containsKey(service)) {
-            return ResultUtil.result(HttpStatus.OK, "success", permissionActionVOS);
+            return ResultUtil.result(HttpStatus.OK, "success", permissionsForUser);
+        }
+        Enforcer enforcerService = casbinServiceContext.getService(service);
+        // 获取权限
+        permissionsForUser = enforcerService.getPermittedActions(sub, obj);
+        return ResultUtil.result(HttpStatus.OK, "success", permissionsForUser);
+    }
+
+    /**
+     * 根据角色查询所有用户.
+     *
+     * @param service 服务
+     * @param obj 资源
+     * @param role 角色
+     * @return 用户列表
+     */
+    @Override
+    public ResponseEntity getRoleOnlyUsers(String service, String obj, String role) {
+        Set<String> users = new HashSet<>();
+        HashMap<String , Set<String>> userMap = new HashMap<>();
+        userMap.put("userIds", users);
+        if (!casbinConfig.getServiceInfo().containsKey(service)) {
+            return ResultUtil.result(HttpStatus.OK, "success", userMap);
         }
         Enforcer enforcerService = casbinServiceContext.getService(service);
         // 获取角色
-        Set<String> permissionsForUser = enforcerService.getPermittedActions(sub, obj);
-        return ResultUtil.result(HttpStatus.OK, "success", permissionsForUser);
+        List<List<String>> policys = enforcerService.getPolicy();
+        for (List<String> policy : policys) {
+            if (obj.equals(policy.get(1)) && role.equals(policy.get(2))) {
+                users.add(policy.get(0));
+            }
+        }
+        return ResultUtil.result(HttpStatus.OK, "success", userMap);
     }
 
     /**

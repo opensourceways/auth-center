@@ -72,6 +72,13 @@ public class UserAuthApiController {
     }
 
     @AuthingApiToken
+    @RequestMapping(value = "/users/roleOnly", method = RequestMethod.GET)
+    public ResponseEntity getRoleOnlyUsers(@RequestParam("service") String service, @RequestParam("role") String role,
+                                      @RequestParam("obj") String obj) {
+        return userAuthService.getRoleOnlyUsers(service, obj, role);
+    }
+
+    @AuthingApiToken
     @RequestMapping(value = "/detail/roleOnlyDom", method = RequestMethod.GET)
     public ResponseEntity getRoleOnlyDom(@RequestParam("service") String service,
                                          @RequestParam("sub") String sub) {
