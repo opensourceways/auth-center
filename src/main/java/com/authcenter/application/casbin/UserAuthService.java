@@ -97,6 +97,15 @@ public interface UserAuthService {
     ResponseEntity getRoleOnlyDetail(String service, String sub);
 
     /**
+     * 获取资源详情.
+     *
+     * @param service 服务
+     * @param subs 对象
+     * @return 返回值
+     */
+    ResponseEntity getDetailResource(String service, String subs);
+
+    /**
      * 获取带域角色详细信息.
      *
      * @param service 服务ID

@@ -12,9 +12,9 @@
 package com.authcenter.application.casbin;
 
 import com.authcenter.application.casbin.vo.PermissionRoleDetailsVO;
-import com.authcenter.application.casbin.vo.PermissionActionVO;
 import com.authcenter.application.casbin.vo.PermissionRoleOnlyDomVO;
 import com.authcenter.application.casbin.vo.PermissionRoleOnlyVO;
+import com.authcenter.application.casbin.vo.ResourceVO;
 import com.authcenter.application.casbin.vo.ServiceRoleVO;
 import com.authcenter.common.config.CasbinConfig;
 import com.authcenter.common.config.CommunityServiceConfig;
@@ -31,9 +31,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -223,6 +225,27 @@ public class UserAuthServiceImpl implements UserAuthService {
             permissionActionVOS.add(permissionRoleOnlyVO);
         }
         return ResultUtil.result(HttpStatus.OK, "success", permissionActionVOS);
+    }
+
+    @Override
+    public ResponseEntity getDetailResource(String service, String subs) {
+        Map<String, List<ResourceVO>> resourceMap = new HashMap<>();
+        if (!casbinConfig.getServiceInfo().containsKey(service)) {
+            return ResultUtil.result(HttpStatus.OK, "success", resourceMap);
+        }
+        Enforcer enforcerService = casbinServiceContext.getService(service);
+        List<String> subList = Arrays.stream(subs.split(",")).toList();
+        for (String sub : subList) {
+            List<List<String>> resources = enforcerService.getPermissionsForUser(sub);
+            resourceMap.putIfAbsent(sub, new ArrayList<>());
+            for (List<String> resource : resources) {
+                ResourceVO resourceVO = new ResourceVO();
+                resourceVO.setObj(resource.get(1));
+                resourceVO.setType(resource.get(2));
+                resourceMap.get(sub).add(resourceVO);
+            }
+        }
+        return ResultUtil.result(HttpStatus.OK, "success", resourceMap);
     }
 
     /**
