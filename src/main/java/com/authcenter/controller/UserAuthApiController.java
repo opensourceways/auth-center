@@ -65,6 +65,13 @@ public class UserAuthApiController {
     }
 
     @AuthingApiToken
+    @RequestMapping(value = "/detail/resource", method = RequestMethod.GET)
+    public ResponseEntity getDetailResource(@RequestParam("service") String service,
+                                            @RequestParam("subs") String subs) {
+        return userAuthService.getDetailResource(service, subs);
+    }
+
+    @AuthingApiToken
     @RequestMapping(value = "/permission/roleOnly", method = RequestMethod.GET)
     public ResponseEntity getRoleOnly(@RequestParam("service") String service, @RequestParam("sub") String sub,
                                         @RequestParam("obj") String obj) {
