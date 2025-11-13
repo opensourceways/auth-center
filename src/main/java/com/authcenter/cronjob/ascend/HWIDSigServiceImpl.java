@@ -48,13 +48,13 @@ public class HWIDSigServiceImpl implements CronjobServiceInter {
     /**
      * 工作台地址.
      */
-    @Value("${workbench.url:}")
+    @Value("${ascend.workbench.url:}")
     private String workbenchUrl;
 
     /**
      * 工作台token.
      */
-    @Value("${workbench.token:}")
+    @Value("${ascend.workbench.token:}")
     private String workbenchToken;
 
     @Override
